@@ -1,0 +1,25 @@
+# One-click deploy on Render (optional). Gives a public URL for PayPal webhooks
+# and a hosted demo for judges. Set the secret env vars in the Render dashboard.
+services:
+  - type: web
+    name: tendero
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: HOST=0.0.0.0 python -m tendero.main
+    healthCheckPath: /api/config
+    envVars:
+      - key: PAYPAL_MODE
+        value: sandbox
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: LLM_PROVIDER
+        value: auto
+      - key: PYTHON_VERSION
+        value: 3.12.10

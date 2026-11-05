@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tendero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/dist/ag-grid-community.min.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="mark">T</span><span class="word">Tendero</span><span class="sep">/</span><span id="storeName" class="store">…</span></div>
+  <div class="badges">
+    <span class="badge" id="llmBadge" title="Which model drives the agents">LLM …</span>
+    <span class="badge" id="ppBadge" title="Which PayPal environment is used">PayPal …</span>
+    <button class="ghost" id="resetBtn" title="New customer conversation">New chat</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="customer" aria-label="Customer chat">
+    <div class="pane-head">
+      <div><div class="eyebrow">Customer view</div><div class="title" id="custName">Lucía · Madrid</div></div>
+      <span class="dot online">assistant online</span>
+    </div>
+    <div class="thread" id="custThread"></div>
+    <form class="composer" id="custForm" autocomplete="off">
+      <input id="custInput" placeholder="Write a message…" aria-label="Customer message">
+      <button type="submit" aria-label="Send">Send</button>
+    </form>
+  </section>
+
+  <section class="merchant" aria-label="Merchant console">
+    <div class="kpis" id="kpis">
+      <div class="kpi"><div class="k">Collected</div><div class="v" id="kGross">0.00</div></div>
+      <div class="kpi"><div class="k">PayPal fees</div><div class="v" id="kFees">0.00</div></div>
+      <div class="kpi"><div class="k">Net</div><div class="v" id="kNet">0.00</div></div>
+      <div class="kpi"><div class="k">Awaiting payment</div><div class="v" id="kPending">0</div></div>
+      <div class="kpi warn"><div class="k">Rejected webhooks</div><div class="v" id="kRejected">0</div></div>
+    </div>
+
+    <div class="card grid-card">
+      <div class="card-head"><span>Orders &amp; reconciliation</span><span class="hint">live from the ledger · AG Grid</span></div>
+      <div id="ordersGrid" class="ag-theme-quartz"></div>
+    </div>
+
+    <div class="bottom">
+      <div class="card timeline-card">
+        <div class="card-head"><span>Payment timeline</span>
+          <span class="actions">
+            <button class="ghost small" id="sweepBtn" title="Re-read pending payments from the PayPal API">Run sweep</button>
+            <button class="ghost small danger" id="forgeBtn" title="Simulate an attacker posting a fake 'payment completed' webhook">Send forged webhook</button>
+          </span>
+        </div>
+        <ol class="timeline" id="timeline"></ol>
+      </div>
+      <div class="card copilot-card">
+        <div class="card-head"><span>Owner copilot</span><span class="hint">ask about money, refunds</span></div>
+        <div class="thread small" id="mThread"></div>
+        <form class="composer small" id="mForm" autocomplete="off">
+          <input id="mInput" placeholder="e.g. How did we do today?" aria-label="Owner message">
+          <button type="submit">Ask</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="overlay" id="checkout" hidden>
+  <div class="sheet">
+    <div class="sheet-head"><span>Checkout</span><button class="ghost small" id="closeCheckout">Close</button></div>
+    <iframe id="checkoutFrame" title="PayPal checkout"></iframe>
+  </div>
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>
