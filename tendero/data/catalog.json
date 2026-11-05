@@ -1,0 +1,54 @@
+{
+  "store": {
+    "name": "Taller Ñandú",
+    "tagline": "Handmade mate gear from Buenos Aires, shipped worldwide",
+    "currency": "USD",
+    "shipping_flat": "9.00",
+    "free_shipping_over": "60.00",
+    "shipping_policy": "Ships worldwide from Buenos Aires in 2 business days. Tracked international mail takes 7-12 business days. Free shipping on orders of 60.00 USD or more, otherwise a flat 9.00 USD.",
+    "returns_policy": "Unused items can be returned within 30 days. Broken-on-arrival items are refunded in full after a photo.",
+    "hours": "Mon-Sat 9:00-19:00 (Buenos Aires time). The assistant answers 24/7."
+  },
+  "products": [
+    {
+      "sku": "MATE-CAL",
+      "name": "Calabaza mate gourd (hand-cured, leather-wrapped)",
+      "price": "24.00",
+      "stock": 18,
+      "description": "Natural gourd cured by hand and wrapped in vegetable-tanned leather. Holds about 200 ml.",
+      "keywords": ["mate gourd", "gourds", "gourd", "calabaza", "mate cup", "mates"]
+    },
+    {
+      "sku": "BOMB-ALP",
+      "name": "Bombilla filter straw (alpaca silver)",
+      "price": "12.00",
+      "stock": 40,
+      "description": "Classic spoon-filter bombilla made of alpaca silver, 16 cm.",
+      "keywords": ["bombilla", "bombillas", "straw", "filter straw"]
+    },
+    {
+      "sku": "YERBA-1K",
+      "name": "Yerba mate, organic, 1 kg",
+      "price": "15.00",
+      "stock": 25,
+      "description": "Organic yerba mate from Misiones, traditional cut with stems.",
+      "keywords": ["yerba", "yerba mate", "tea", "loose leaf"]
+    },
+    {
+      "sku": "CASE-LTH",
+      "name": "Leather travel case for mate set",
+      "price": "35.00",
+      "stock": 7,
+      "description": "Handstitched leather case that fits a gourd, a bombilla and 250 g of yerba.",
+      "keywords": ["case", "travel case", "bag", "leather case", "estuche"]
+    },
+    {
+      "sku": "ALF-12",
+      "name": "Alfajores de maicena, box of 12",
+      "price": "18.00",
+      "stock": 10,
+      "description": "Cornstarch alfajores with dulce de leche, vacuum packed for travel.",
+      "keywords": ["alfajor", "alfajores", "cookies", "sweets", "dulce de leche"]
+    }
+  ]
+}

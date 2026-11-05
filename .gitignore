@@ -2,7 +2,7 @@
 __pycache__/
 *.pyc
 .env
-data/
+/data/
 data_server.log
 video/build/
 .pytest_cache/
