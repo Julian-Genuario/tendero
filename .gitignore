@@ -6,3 +6,5 @@ data/
 data_server.log
 video/build/
 .pytest_cache/
+video_build.log
+PASOS_JULIAN.md

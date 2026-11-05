@@ -1,0 +1,18 @@
+{
+  "voice": "en-US-AndrewNeural",
+  "rate": "+6%",
+  "segments": [
+    {"id": "title", "text": "This is Tendero: an AI sales agent that sells, collects and reconciles payments with PayPal, for small shops that sell over chat."},
+    {"id": "problem", "text": "Across Latin America, small shops sell through chat. The owner answers every message by hand, sends a payment link, and then checks the PayPal app to guess which payment belongs to which order. Sales get lost at night, totals get mistyped, and fake 'I already paid' screenshots slip through."},
+    {"id": "overview", "text": "Tendero puts an agent in that chat. On the left, a customer of a mate workshop in Buenos Aires. On the right, the owner's console. In this recording the agents run on the built-in offline demo brain; add an API key and Claude drives exactly the same tools."},
+    {"id": "ask", "text": "Lucía writes from Madrid. The agent calls tools to price the cart and answer about shipping. Prices come from the server, never from the model, so the total is always right."},
+    {"id": "confirm", "text": "Only after she confirms that total can the agent create a PayPal order with the Orders v2 API. That guardrail lives in code: the agent cannot charge in the same turn it priced the cart."},
+    {"id": "checkout", "text": "She approves the payment. This demo uses our local sandbox simulator, which speaks the same REST API as the PayPal sandbox. With sandbox keys, the same code talks to PayPal."},
+    {"id": "webhook", "text": "Now the important part. Tendero captures the order and PayPal sends a webhook. Tendero asks PayPal to verify the signature, reconciles amount and currency against the order, records the fee and the net, and only then tells Lucía she has paid."},
+    {"id": "forged", "text": "What if someone fakes it? Here, an attacker posts a 'payment completed' webhook. Signature verification fails, the event is rejected, and no order changes."},
+    {"id": "copilot", "text": "The owner has a copilot too. How did we do today? It runs the reconciliation sweep and answers with real numbers: gross, PayPal fees, net, and the fake webhook it blocked."},
+    {"id": "refund", "text": "And it can act. Refund the last order, the gourd arrived cracked. The agent finds the order and issues a PayPal refund. When the signed refund webhook arrives, the customer is told automatically."},
+    {"id": "arch", "text": "Under the hood: a provider-agnostic tool loop running Claude Sonnet by default, PayPal Orders, refunds and webhook verification, an idempotent ledger, and a sweep that recovers lost webhooks. Twenty-three automated tests cover these flows."},
+    {"id": "close", "text": "Tendero is open source under the MIT license and runs locally in five minutes. Sell while you sleep, and know every payment is real."}
+  ]
+}

@@ -13,7 +13,7 @@ async def main(base: str, out: Path) -> None:
     out.mkdir(parents=True, exist_ok=True)
     async with async_playwright() as p:
         b = await p.chromium.launch()
-        page = await b.new_page(viewport={"width": 1280, "height": 720})
+        page = await b.new_page(viewport={"width": 1280, "height": int(__import__("os").environ.get("VH", "720"))})
         errors = []
         page.on("pageerror", lambda e: errors.append(str(e)))
         await page.goto(base)

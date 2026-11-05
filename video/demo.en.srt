@@ -1,0 +1,176 @@
+1
+00:00:01,456 --> 00:00:07,287
+This is Tendero: an AI sales agent that sells, collects and reconciles payments with PayPal,
+
+2
+00:00:07,327 --> 00:00:09,585
+for small shops that sell over chat.
+
+3
+00:00:09,972 --> 00:00:13,160
+Across Latin America, small shops sell through chat.
+
+4
+00:00:13,200 --> 00:00:16,569
+The owner answers every message by hand, sends a payment link,
+
+5
+00:00:16,609 --> 00:00:20,802
+and then checks the PayPal app to guess which payment belongs to which order.
+
+6
+00:00:20,842 --> 00:00:23,682
+Sales get lost at night, totals get mistyped,
+
+7
+00:00:23,722 --> 00:00:26,945
+and fake 'I already paid' screenshots slip through.
+
+8
+00:00:27,362 --> 00:00:29,513
+Tendero puts an agent in that chat.
+
+9
+00:00:29,553 --> 00:00:33,286
+On the left, a customer of a mate workshop in Buenos Aires.
+
+10
+00:00:33,326 --> 00:00:35,338
+On the right, the owner's console.
+
+11
+00:00:35,378 --> 00:00:40,026
+In this recording the agents run on the built-in offline demo brain;
+
+12
+00:00:40,066 --> 00:00:43,887
+add an API key and Claude drives exactly the same tools.
+
+13
+00:00:44,269 --> 00:00:45,783
+Lucía writes from Madrid.
+
+14
+00:00:45,823 --> 00:00:49,379
+The agent calls tools to price the cart and answer about shipping.
+
+15
+00:00:49,419 --> 00:00:54,332
+Prices come from the server, never from the model, so the total is always right.
+
+16
+00:00:54,737 --> 00:01:00,122
+Only after she confirms that total can the agent create a PayPal order with the Orders v2
+
+17
+00:01:00,162 --> 00:01:00,366
+API.
+
+18
+00:01:00,406 --> 00:01:05,625
+That guardrail lives in code: the agent cannot charge in the same turn it priced the cart.
+
+19
+00:01:06,050 --> 00:01:07,363
+She approves the payment.
+
+20
+00:01:07,403 --> 00:01:10,263
+This demo uses our local sandbox simulator,
+
+21
+00:01:10,303 --> 00:01:13,837
+which speaks the same REST API as the PayPal sandbox.
+
+22
+00:01:13,877 --> 00:01:17,280
+With sandbox keys, the same code talks to PayPal.
+
+23
+00:01:17,690 --> 00:01:18,826
+Now the important part.
+
+24
+00:01:18,866 --> 00:01:22,352
+Tendero captures the order and PayPal sends a webhook.
+
+25
+00:01:22,392 --> 00:01:25,243
+Tendero asks PayPal to verify the signature,
+
+26
+00:01:25,283 --> 00:01:30,368
+reconciles amount and currency against the order, records the fee and the net,
+
+27
+00:01:30,408 --> 00:01:32,930
+and only then tells Lucía she has paid.
+
+28
+00:01:33,331 --> 00:01:34,550
+What if someone fakes it?
+
+29
+00:01:34,590 --> 00:01:37,887
+Here, an attacker posts a 'payment completed' webhook.
+
+30
+00:01:37,927 --> 00:01:43,028
+Signature verification fails, the event is rejected, and no order changes.
+
+31
+00:01:43,440 --> 00:01:45,131
+The owner has a copilot too.
+
+32
+00:01:45,171 --> 00:01:46,275
+How did we do today?
+
+33
+00:01:46,315 --> 00:01:52,129
+It runs the reconciliation sweep and answers with real numbers: gross, PayPal fees, net,
+
+34
+00:01:52,169 --> 00:01:54,258
+and the fake webhook it blocked.
+
+35
+00:01:54,659 --> 00:01:55,630
+And it can act.
+
+36
+00:01:55,670 --> 00:01:58,508
+Refund the last order, the gourd arrived cracked.
+
+37
+00:01:58,548 --> 00:02:01,833
+The agent finds the order and issues a PayPal refund.
+
+38
+00:02:01,873 --> 00:02:06,585
+When the signed refund webhook arrives, the customer is told automatically.
+
+39
+00:02:07,003 --> 00:02:11,758
+Under the hood: a provider-agnostic tool loop running Claude Sonnet by default,
+
+40
+00:02:11,798 --> 00:02:16,006
+PayPal Orders, refunds and webhook verification, an idempotent ledger,
+
+41
+00:02:16,046 --> 00:02:18,434
+and a sweep that recovers lost webhooks.
+
+42
+00:02:18,474 --> 00:02:21,417
+Twenty-three automated tests cover these flows.
+
+43
+00:02:21,815 --> 00:02:27,055
+Tendero is open source under the MIT license and runs locally in five minutes.
+
+44
+00:02:27,095 --> 00:02:30,227
+Sell while you sleep, and know every payment is real.
+
