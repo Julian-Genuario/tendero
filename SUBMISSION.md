@@ -69,7 +69,7 @@ Tendero puts an agent in the shop's chat and closes the whole loop: **sell → c
 ---
 
 ## Testing instructions (for judges)
-1. `git clone <repo> && cd tendero && python -m venv .venv && .venv/Scripts/activate` (macOS/Linux: `source .venv/bin/activate`)
+1. `git clone https://github.com/Julian-Genuario/tendero.git && cd tendero && python -m venv .venv && .venv/Scripts/activate` (macOS/Linux: `source .venv/bin/activate`)
 2. `pip install -r requirements.txt && python -m tendero.main` → open http://localhost:8000
 3. In the customer chat type: `Hi! Do you ship to Madrid? I'd like 2 mate gourds and a bombilla`, then `Yes, send me the link`, then click **Pay with PayPal** → **Approve & pay**.
 4. Watch the timeline (capture → webhook verified → reconciled → fulfillment planned → customer notified). Click **Send forged webhook** to see it rejected.
