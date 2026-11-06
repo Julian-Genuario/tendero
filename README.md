@@ -47,7 +47,7 @@ Sales are lost at night, totals get mistyped, and nobody reconciles anything. Te
 
 ## Demo
 
-- **Video (< 3 min):** `<YouTube link>`
+- **Video (< 3 min):** `https://youtu.be/WJs3VghvRD4`
 - **Run it yourself in 5 minutes:** see below. It runs without any account by default (local PayPal sandbox simulator + offline demo brain + Channel3 sample data), and switches to the real PayPal sandbox, Claude and live Channel3 search when you add keys.
 
 ## Sponsor integrations
@@ -118,7 +118,7 @@ DRAFT -> AWAITING_PAYMENT -> APPROVED -> CAPTURED -> PAID -> REFUNDED
 Requirements: Python 3.11+.
 
 ```bash
-git clone <repo-url> tendero && cd tendero
+git clone https://github.com/Julian-Genuario/tendero.git tendero && cd tendero
 python -m venv .venv
 # Windows: .venv\Scripts\activate    macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt

@@ -12,8 +12,8 @@ An AI sales agent for chat-first small shops: it sells, sends a PayPal checkout,
 python, fastapi, paypal, paypal-orders-v2, paypal-webhooks, paypal-server-sdk, apimatic, claude, anthropic, ag-grid, ag-charts, bryntum, channel3, sqlite, playwright, javascript
 
 ## Links
-- Code repository: `https://github.com/<user>/tendero`
-- Demo video (YouTube, public): `https://youtu.be/<id>`
+- Code repository: `https://github.com/Julian-Genuario/tendero`
+- Demo video (YouTube, public): `https://youtu.be/WJs3VghvRD4`
 - Try it: run locally in 5 minutes, instructions in the README (works with no accounts; add sandbox keys for the real PayPal sandbox)
 
 ---
