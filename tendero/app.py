@@ -19,6 +19,8 @@ from .agent.llm import AnthropicProvider, LLMProvider, ScriptedProvider
 from .agent.tools import CustomerTools, MerchantTools
 from .catalog import Catalog
 from .config import Settings, load_settings
+from .fulfillment import PlanError
+from .market import Market
 from .payments import PaymentFlowError, Payments
 from .paypal_client import PayPalClient, PayPalError
 from .store import Store
@@ -39,6 +41,11 @@ class ChatIn(BaseModel):
 
 class ForgeIn(BaseModel):
     order_id: str | None = None
+
+
+class MoveIn(BaseModel):
+    startDate: str
+    endDate: str
 
 
 def build_provider(s: Settings, catalog: Catalog) -> LLMProvider:
@@ -71,17 +78,29 @@ def create_app(settings: Settings | None = None, provider: LLMProvider | None = 
         transport = httpx.ASGITransport(app=app)
         paypal = PayPalClient("http://internal/__mock_paypal", s.paypal_client_id, s.paypal_client_secret,
                               transport=transport)
+        if s.paypal_sdk == "apimatic":
+            from .paypal_sdk import ASGIBridge, PayPalSDKClient
+
+            paypal = PayPalSDKClient(s.paypal_client_id, s.paypal_client_secret, sandbox=True, rest=paypal,
+                                     bridge=ASGIBridge(app, "/__mock_paypal"))
     else:
         if not (s.paypal_client_id and s.paypal_client_secret):
             raise RuntimeError("PAYPAL_MODE=sandbox needs PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET")
         paypal = PayPalClient(s.resolved_paypal_base, s.paypal_client_id, s.paypal_client_secret)
+        if s.paypal_sdk == "apimatic":
+            from .paypal_sdk import PayPalSDKClient
+
+            paypal = PayPalSDKClient(s.paypal_client_id, s.paypal_client_secret,
+                                     sandbox=True, rest=paypal)
 
     payments = Payments(s, store, paypal, catalog)
+    market = Market(catalog, s.channel3_api_key)
+    market_cache: dict = {}
     provider = provider or build_provider(s, catalog)
     customer_agent = Agent(provider, CUSTOMER_SYSTEM.format(store=catalog.store["name"], tagline=catalog.store["tagline"]))
     merchant_agent = Agent(provider, MERCHANT_SYSTEM.format(store=catalog.store["name"]))
     app.state.settings, app.state.store, app.state.payments = s, store, payments
-    app.state.mock, app.state.provider = mock, provider
+    app.state.mock, app.state.provider, app.state.market = mock, provider, market
 
     # ------------------------------------------------------------------- UI
     app.mount("/static", StaticFiles(directory=STATIC), name="static")
@@ -98,6 +117,12 @@ def create_app(settings: Settings | None = None, provider: LLMProvider | None = 
             "paypal": {"mode": s.paypal_mode,
                        "label": "PayPal sandbox" if s.paypal_mode == "sandbox" else "Local PayPal sandbox simulator"},
             "demo_tools": s.demo_tools,
+            "integrations": {
+                "paypal_sdk": getattr(paypal, "sdk_name", "PayPal REST (httpx)"),
+                "channel3": market.source,
+                "grid": "AG Grid Community + AG Charts Community",
+                "scheduler": "Bryntum Scheduler Community",
+            },
         }
 
     # ----------------------------------------------------------------- chat
@@ -126,7 +151,7 @@ def create_app(settings: Settings | None = None, provider: LLMProvider | None = 
             tools = CustomerTools(payments, conv["id"], conv["customer_name"])
             agent = customer_agent
         else:
-            tools = MerchantTools(payments)
+            tools = MerchantTools(payments, market)
             agent = merchant_agent
         history = store.get_history(conv["id"])
         try:
@@ -138,6 +163,9 @@ def create_app(settings: Settings | None = None, provider: LLMProvider | None = 
             store.add_event(None, "agent.error", f"{type(e).__name__}: {e}", ok=False)
             return {"ok": False}
         store.set_history(conv["id"], history)
+        for c in result.cards:
+            if c["type"] == "market":
+                market_cache["last"] = getattr(tools, "last_market", None) or market_cache.get("last")
         card = result.cards[-1] if result.cards else None
         store.add_message(conv["id"], "agent", result.text, card=card, tools=result.tool_trace)
         for t in result.tool_trace:
@@ -181,6 +209,32 @@ def create_app(settings: Settings | None = None, provider: LLMProvider | None = 
     async def sweep():
         return await payments.sweep(force=True)
 
+    @app.get("/api/merchant/inventory")
+    async def inventory():
+        return {"currency": catalog.currency, "rows": catalog.inventory(store.list_orders())}
+
+    @app.get("/api/merchant/fulfillment")
+    async def fulfillment_board():
+        return payments.fulfillment.board()
+
+    @app.patch("/api/merchant/fulfillment/{task_id}")
+    async def move_task(task_id: str, body: MoveIn):
+        try:
+            t = payments.fulfillment.move(task_id, body.startDate, body.endDate)
+        except PlanError as e:
+            return JSONResponse({"ok": False, "error": str(e)}, status_code=409)
+        return {"ok": True, "task": t}
+
+    @app.get("/api/merchant/market")
+    async def market_view():
+        return market_cache.get("last") or {"currency": catalog.currency, "source": market.source,
+                                            "live": market.live, "rows": [], "pending": True}
+
+    @app.post("/api/merchant/market/refresh")
+    async def market_refresh():
+        market_cache["last"] = await market.check()
+        return market_cache["last"]
+
     # ----------------------------------------------------------- demo tools
     @app.post("/api/demo/forge-webhook")
     async def forge(body: ForgeIn):
@@ -205,6 +259,7 @@ def create_app(settings: Settings | None = None, provider: LLMProvider | None = 
     @app.on_event("shutdown")
     async def _close():
         await paypal.aclose()
+        await market.aclose()
 
     return app
 

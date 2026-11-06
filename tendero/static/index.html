@@ -6,8 +6,14 @@
 <title>Tendero</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/vendor/bryntum/fontawesome/css/fontawesome.css">
+<link rel="stylesheet" href="/static/vendor/bryntum/fontawesome/css/solid.css">
+<link rel="stylesheet" href="/static/vendor/bryntum/scheduler.css">
+<link rel="stylesheet" href="/static/vendor/bryntum/svalbard-light.css">
 <link rel="stylesheet" href="/static/styles.css">
-<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32.3.3/dist/ag-grid-community.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@36.2.0/dist/ag-grid-community.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ag-charts-community@14.2.0/dist/umd/ag-charts-community.min.js"></script>
+<script src="/static/vendor/bryntum/scheduler.bundle.js"></script>
 </head>
 <body>
 <header class="top">
@@ -15,6 +21,7 @@
   <div class="badges">
     <span class="badge" id="llmBadge" title="Which model drives the agents">LLM …</span>
     <span class="badge" id="ppBadge" title="Which PayPal environment is used">PayPal …</span>
+    <span class="badge" id="sdkBadge" title="How Tendero calls PayPal Orders v2 / Payments v2">SDK …</span>
     <button class="ghost" id="resetBtn" title="New customer conversation">New chat</button>
   </div>
 </header>
@@ -42,8 +49,36 @@
     </div>
 
     <div class="card grid-card">
-      <div class="card-head"><span>Orders &amp; reconciliation</span><span class="hint">live from the ledger · AG Grid</span></div>
-      <div id="ordersGrid" class="ag-theme-quartz"></div>
+      <div class="card-head tabbar">
+        <div class="tabs" role="tablist">
+          <button class="tab on" role="tab" data-tab="orders" id="tab-orders">Orders</button>
+          <button class="tab" role="tab" data-tab="inventory" id="tab-inventory">Inventory</button>
+          <button class="tab" role="tab" data-tab="fulfillment" id="tab-fulfillment">Fulfillment</button>
+          <button class="tab" role="tab" data-tab="market" id="tab-market">Market prices</button>
+        </div>
+        <span class="hint" id="tabHint">live from the ledger · AG Grid</span>
+      </div>
+      <div class="pane" data-pane="orders">
+        <div class="pane-tools">
+          <input id="quickFilter" class="search" placeholder="Search orders…" aria-label="Search orders">
+          <span class="chip" id="viewChip" hidden><span id="viewChipText"></span><button id="viewChipClear" title="Clear the copilot's filter" aria-label="Clear filter">×</button></span>
+        </div>
+        <div id="ordersGrid" class="gridhost"></div>
+      </div>
+      <div class="pane" data-pane="inventory" hidden>
+        <div class="split">
+          <div id="inventoryGrid" class="gridhost"></div>
+          <div id="salesChart" class="chart"></div>
+        </div>
+      </div>
+      <div class="pane" data-pane="fulfillment" hidden>
+        <div class="pane-tools"><span class="note" id="boardNote">Booked automatically when PayPal confirms a payment · drag to reschedule · Buenos Aires time</span><span class="toast" id="boardToast" hidden></span></div>
+        <div id="board" class="boardhost"></div>
+      </div>
+      <div class="pane" data-pane="market" hidden>
+        <div class="pane-tools"><span class="note" id="marketNote">Comparable products across the web, via Channel3</span><button class="ghost small" id="marketRun">Run check</button></div>
+        <div id="marketGrid" class="gridhost"></div>
+      </div>
     </div>
 
     <div class="bottom">

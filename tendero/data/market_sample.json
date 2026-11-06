@@ -1,0 +1,429 @@
+{
+ "_note": "SAMPLE DATA in the shape of a Channel3 /v1/search response. Retailers are fictitious (.example domains). Set CHANNEL3_API_KEY to query Channel3 live.",
+ "leather wrapped calabash mate gourd": [
+  {
+   "id": "sample001",
+   "title": "Hand-cured calabash mate with leather wrap",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://matecraft.example/p/1",
+     "domain": "matecraft.example",
+     "price": {
+      "price": 29.9,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    },
+    {
+     "url": "https://pampa-goods.example/p/1",
+     "domain": "pampa-goods.example",
+     "price": {
+      "price": 26.5,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample002",
+   "title": "Traditional leather mate gourd, 200 ml",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://southern-tea.example/p/2",
+     "domain": "southern-tea.example",
+     "price": {
+      "price": 22.0,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample003",
+   "title": "Calabaza mate, cuero repujado",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://andes-market.example/p/3",
+     "domain": "andes-market.example",
+     "price": {
+      "price": 34.0,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample004",
+   "title": "Gourd mate cup with leather base",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://teahouse-supply.example/p/4",
+     "domain": "teahouse-supply.example",
+     "price": {
+      "price": 19.99,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    },
+    {
+     "url": "https://pampa-goods.example/p/4",
+     "domain": "pampa-goods.example",
+     "price": {
+      "price": 21.5,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "OutOfStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample005",
+   "title": "Premium calabash mate set",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://matecraft.example/p/5",
+     "domain": "matecraft.example",
+     "price": {
+      "price": 41.0,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  }
+ ],
+ "alpaca silver bombilla straw": [
+  {
+   "id": "sample006",
+   "title": "Alpaca silver spoon bombilla 16 cm",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://southern-tea.example/p/6",
+     "domain": "southern-tea.example",
+     "price": {
+      "price": 14.5,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample007",
+   "title": "Bombilla filter straw, nickel silver",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://teahouse-supply.example/p/7",
+     "domain": "teahouse-supply.example",
+     "price": {
+      "price": 9.99,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample008",
+   "title": "Classic alpaca bombilla",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://andes-market.example/p/8",
+     "domain": "andes-market.example",
+     "price": {
+      "price": 16.0,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    },
+    {
+     "url": "https://matecraft.example/p/8",
+     "domain": "matecraft.example",
+     "price": {
+      "price": 15.0,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample009",
+   "title": "Stainless steel bombilla",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://bulk-kitchen.example/p/9",
+     "domain": "bulk-kitchen.example",
+     "price": {
+      "price": 6.5,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  }
+ ],
+ "organic yerba mate 1 kg": [
+  {
+   "id": "sample010",
+   "title": "Organic yerba mate traditional cut, 1 kg",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://southern-tea.example/p/10",
+     "domain": "southern-tea.example",
+     "price": {
+      "price": 13.5,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample011",
+   "title": "Yerba mate con palo 1 kg",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://andes-market.example/p/11",
+     "domain": "andes-market.example",
+     "price": {
+      "price": 11.9,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample012",
+   "title": "Organic yerba mate, 1 kg bag",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://teahouse-supply.example/p/12",
+     "domain": "teahouse-supply.example",
+     "price": {
+      "price": 16.75,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample013",
+   "title": "Yerba mate premium 1 kg",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://bulk-kitchen.example/p/13",
+     "domain": "bulk-kitchen.example",
+     "price": {
+      "price": 12.4,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  }
+ ],
+ "leather mate travel case": [
+  {
+   "id": "sample014",
+   "title": "Leather mate carrying case",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://matecraft.example/p/14",
+     "domain": "matecraft.example",
+     "price": {
+      "price": 38.0,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample015",
+   "title": "Mate set travel bag, cowhide",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://andes-market.example/p/15",
+     "domain": "andes-market.example",
+     "price": {
+      "price": 45.0,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample016",
+   "title": "Faux leather mate kit bag",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://bulk-kitchen.example/p/16",
+     "domain": "bulk-kitchen.example",
+     "price": {
+      "price": 24.0,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  }
+ ],
+ "alfajores dulce de leche box 12": [
+  {
+   "id": "sample017",
+   "title": "Cornstarch alfajores, 12 pack",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://andes-market.example/p/17",
+     "domain": "andes-market.example",
+     "price": {
+      "price": 21.0,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample018",
+   "title": "Alfajores de maicena x12",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://southern-tea.example/p/18",
+     "domain": "southern-tea.example",
+     "price": {
+      "price": 17.5,
+      "compare_at_price": null,
+      "currency": "USD"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  },
+  {
+   "id": "sample019",
+   "title": "Dulce de leche alfajores box of 12",
+   "brands": [],
+   "images": [],
+   "offers": [
+    {
+     "url": "https://teahouse-supply.example/p/19",
+     "domain": "teahouse-supply.example",
+     "price": {
+      "price": 19.0,
+      "compare_at_price": null,
+      "currency": "EUR"
+     },
+     "availability": "InStock",
+     "condition": "new",
+     "max_commission_rate": 0
+    }
+   ]
+  }
+ ]
+}

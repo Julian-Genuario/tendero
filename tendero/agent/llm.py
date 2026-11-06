@@ -243,6 +243,14 @@ class ScriptedProvider:
                     return LLMTurn([self._use("refund_order", {"order_id": m.group(0).upper(),
                                                                "reason": self._reason(text), "amount": ""})], "tool_use")
                 return LLMTurn([self._use("list_orders", {"status": "PAID"})], "tool_use")
+            if re.search(r"\b(show|find|filter|which|list)\b.*\borders?\b", text, re.I):
+                return LLMTurn([self._use("show_orders", self._grid_args(text))], "tool_use")
+            if re.search(r"\b(price|pricing|priced|competitive|market|compare|cheap|expensive)\w*", text, re.I):
+                skus = self.catalog.find_in_text(text)
+                return LLMTurn([self._use("market_price_check", {"sku": skus[0] if len(skus) == 1 else ""})],
+                               "tool_use")
+            if re.search(r"\b(ship|dispatch|pack|courier|pickup|fulfil|tomorrow|schedule)\w*", text, re.I):
+                return LLMTurn([self._use("fulfillment_plan", {})], "tool_use")
             if re.search(r"\b(how|today|summary|reconcil|issue|problem|money|made|sales)\w*", text, re.I):
                 return LLMTurn([self._use("reconciliation_report", {})], "tool_use")
             return LLMTurn([self._use("list_orders", {"status": "ANY"})], "tool_use")
@@ -273,11 +281,48 @@ class ScriptedProvider:
                 lines.append(f"Heads-up: {d['rejected_webhooks']} fake payment notification(s) failed PayPal "
                              f"signature verification and were ignored - no order was marked paid.")
             return LLMTurn([{"type": "text", "text": " ".join(lines)}], "end_turn")
+        if name == "show_orders":
+            o = d["orders"]
+            head = f"Showing {d['matching']} order(s) in the grid"
+            listed = "; ".join(f"{x['order_id']} {x['status'].replace('_', ' ').lower()} {x['total']}" for x in o[:4])
+            return LLMTurn([{"type": "text", "text": f"{head}: {listed}." if o else f"{head}: none match."}], "end_turn")
+        if name == "fulfillment_plan":
+            if not d["orders"]:
+                return LLMTurn([{"type": "text", "text": "Nothing is booked on the fulfillment board yet."}], "end_turn")
+            nxt = d["orders"][0]
+            more = len(d["orders"]) - 1
+            return LLMTurn([{"type": "text", "text": f"Next courier pickup: {nxt['order_id']} ({nxt['items']}) on "
+                                                     f"{nxt.get('dispatch', 'TBD')} Buenos Aires time."
+                                                     + (f" {more} more order(s) are booked after it." if more else "")
+                                                     + " It's all on the fulfillment board."}], "end_turn")
+        if name == "market_price_check":
+            parts = [f"{r['product']}: ours {r['our_price']} vs market median {r['median']} ({r['position']})"
+                     for r in d["rows"] if r["median"]]
+            flag = [r["product"] for r in d["rows"] if r["position"] == "below market"]
+            tail = f" You may be undercharging for: {', '.join(flag)}." if flag else ""
+            src = "live from Channel3" if d["live"] else "Channel3 sample data, no API key set"
+            return LLMTurn([{"type": "text", "text": f"Market check ({src}). " + "; ".join(parts[:5]) + "." + tail}],
+                           "end_turn")
         if name == "refund_order":
             return LLMTurn([{"type": "text", "text": f"Refund {d['refund_id']} for {d['amount']} sent through PayPal "
                                                      f"({d['status']}). The customer is notified once PayPal's signed "
                                                      f"webhook confirms it."}], "end_turn")
         return LLMTurn([{"type": "text", "text": json.dumps(d)}], "end_turn")
+
+    @staticmethod
+    def _grid_args(text: str) -> dict:
+        t = text.lower()
+        status = "ANY"
+        for words, st in ((("unpaid", "awaiting", "pending", "not paid"), "AWAITING_PAYMENT"),
+                          (("refunded",), "REFUNDED"), (("mismatch", "review"), "MISMATCH"),
+                          (("failed", "declined"), "FAILED"), (("paid",), "PAID")):
+            if any(w in t for w in words):
+                status = st
+                break
+        m = re.search(r"(?:over|above|more than|at least|>)\s*\$?(\d+(?:\.\d{1,2})?)", t)
+        sort = "total_desc" if re.search(r"\b(biggest|largest|highest|top)\b", t) else \
+            "total_asc" if re.search(r"\b(smallest|lowest|cheapest)\b", t) else "newest"
+        return {"status": status, "min_total": m.group(1) if m else "", "sort": sort}
 
     @staticmethod
     def _reason(text: str) -> str:

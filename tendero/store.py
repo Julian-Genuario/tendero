@@ -55,6 +55,16 @@ CREATE TABLE IF NOT EXISTS events (
     ok INTEGER NOT NULL DEFAULT 1,
     created_at REAL NOT NULL
 );
+CREATE TABLE IF NOT EXISTS fulfillment_tasks (
+    id TEXT PRIMARY KEY,
+    order_id TEXT NOT NULL,
+    resource_id TEXT NOT NULL,          -- qa | bench | courier
+    kind TEXT NOT NULL,                 -- qa | pack | pickup
+    name TEXT NOT NULL,
+    start TEXT NOT NULL,                -- shop-local wall clock, ISO without offset
+    "end" TEXT NOT NULL,
+    detail TEXT NOT NULL DEFAULT ''
+);
 CREATE TABLE IF NOT EXISTS webhook_events (
     event_id TEXT PRIMARY KEY,
     event_type TEXT NOT NULL,
@@ -218,3 +228,25 @@ class Store:
     def webhook_seen(self, event_id: str) -> bool:
         return self._one("SELECT 1 AS x FROM webhook_events WHERE event_id=? AND verified=1",
                          (event_id,)) is not None
+
+    # -------------------------------------------------------------- fulfillment
+    def add_fulfillment_task(self, order_id: str, resource_id: str, kind: str, name: str,
+                             start: str, end: str, detail: str = "") -> str:
+        tid = "FT-" + uuid.uuid4().hex[:8]
+        self._exec('INSERT INTO fulfillment_tasks (id, order_id, resource_id, kind, name, start, "end", detail) '
+                   "VALUES (?,?,?,?,?,?,?,?)", (tid, order_id, resource_id, kind, name, start, end, detail))
+        return tid
+
+    def fulfillment_tasks(self, order_id: str | None = None) -> list[dict]:
+        if order_id:
+            return self._all("SELECT * FROM fulfillment_tasks WHERE order_id=? ORDER BY start", (order_id,))
+        return self._all("SELECT * FROM fulfillment_tasks ORDER BY start")
+
+    def get_fulfillment_task(self, task_id: str) -> dict | None:
+        return self._one("SELECT * FROM fulfillment_tasks WHERE id=?", (task_id,))
+
+    def update_fulfillment_task(self, task_id: str, start: str, end: str) -> None:
+        self._exec('UPDATE fulfillment_tasks SET start=?, "end"=? WHERE id=?', (start, end, task_id))
+
+    def delete_fulfillment_tasks(self, order_id: str) -> int:
+        return self._exec("DELETE FROM fulfillment_tasks WHERE order_id=?", (order_id,)).rowcount

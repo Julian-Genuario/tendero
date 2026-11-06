@@ -14,6 +14,7 @@ from decimal import Decimal
 from typing import Any
 
 from ..catalog import CartError, fmt, money
+from ..market import Market, MarketError
 from ..payments import PaymentFlowError, Payments
 from ..paypal_client import PayPalError
 
@@ -57,11 +58,13 @@ CUSTOMER_TOOLS = [
     _tool("store_info", "Shipping, returns policy and opening hours of the shop.", {}),
 ]
 
+ORDER_STATUSES = ["ANY", "DRAFT", "AWAITING_PAYMENT", "APPROVED", "CAPTURED", "PAID", "MISMATCH",
+                  "REFUNDED", "FAILED"]
+
 MERCHANT_TOOLS = [
     _tool("list_orders",
           "List orders from the ledger, newest first, optionally filtered by status.",
-          {"status": {"type": "string", "enum": ["ANY", "DRAFT", "AWAITING_PAYMENT", "APPROVED",
-                                                  "CAPTURED", "PAID", "MISMATCH", "REFUNDED", "FAILED"]}}),
+          {"status": {"type": "string", "enum": ORDER_STATUSES}}),
     _tool("reconciliation_report",
           "Run the PayPal reconciliation sweep and return the money picture: gross collected, PayPal "
           "fees, net, pending payments, mismatches needing review, refunds and rejected (forged) "
@@ -70,6 +73,20 @@ MERCHANT_TOOLS = [
           "Refund a PAID order through PayPal (Payments v2 refund). amount='' refunds in full.",
           {"order_id": {"type": "string"}, "reason": {"type": "string"},
            "amount": {"type": "string", "description": "e.g. '12.00', or '' for a full refund"}}),
+    _tool("show_orders",
+          "Filter and sort the owner's orders grid (AG Grid) on screen, and return the matching orders. "
+          "Use it whenever the owner asks to see, show or find orders.",
+          {"status": {"type": "string", "enum": ORDER_STATUSES},
+           "min_total": {"type": "string", "description": "e.g. '50.00', or '' for no minimum"},
+           "sort": {"type": "string", "enum": ["newest", "total_desc", "total_asc"]}}),
+    _tool("fulfillment_plan",
+          "Upcoming workshop work for paid orders (quality check, packing, courier pickup), as booked on "
+          "the fulfillment board. Times are Buenos Aires time.", {}),
+    _tool("market_price_check",
+          "Compare catalog prices with comparable products on sale across the web (Channel3 product "
+          "search): low, median and high market price per product. sku='' checks the whole catalog. "
+          "Report only; never change prices.",
+          {"sku": {"type": "string", "description": "a catalog SKU, or '' for all products"}}),
 ]
 
 
@@ -154,9 +171,10 @@ class CustomerTools:
 class MerchantTools:
     definitions = MERCHANT_TOOLS
 
-    def __init__(self, payments: Payments):
-        self.p = payments
+    def __init__(self, payments: Payments, market: Market | None = None):
+        self.p, self.market = payments, market
         self.cards: list[dict] = []
+        self.last_market: dict | None = None
 
     async def run(self, name: str, args: dict) -> dict:
         fn = getattr(self, f"t_{name}", None)
@@ -164,7 +182,7 @@ class MerchantTools:
             raise ToolError(f"unknown tool {name}")
         try:
             return await fn(**args)
-        except (PaymentFlowError, PayPalError) as e:
+        except (PaymentFlowError, PayPalError, MarketError) as e:
             raise ToolError(str(e)) from e
         except TypeError as e:
             raise ToolError(f"bad arguments: {e}") from e
@@ -211,3 +229,36 @@ class MerchantTools:
         return {"order_id": order_id, **res,
                 "note": "Refund requested at PayPal; the order flips to REFUNDED when the signed "
                         "PAYMENT.CAPTURE.REFUNDED webhook is verified."}
+
+    async def t_show_orders(self, status: str = "ANY", min_total: str = "", sort: str = "newest") -> dict:
+        if status not in ORDER_STATUSES:
+            raise ToolError(f"unknown status {status}")
+        if sort not in ("newest", "total_desc", "total_asc"):
+            raise ToolError(f"unknown sort {sort}")
+        try:
+            floor = money(min_total) if min_total else None
+        except Exception as e:
+            raise ToolError(f"min_total must be an amount like '50.00', got {min_total!r}") from e
+        rows = self.p.store.list_orders(None if status == "ANY" else status)
+        if floor is not None:
+            rows = [o for o in rows if money(o["total"]) >= floor]
+        if sort != "newest":
+            rows.sort(key=lambda o: money(o["total"]), reverse=sort == "total_desc")
+        view = {"type": "grid_view", "status": status, "min_total": fmt(floor) if floor is not None else "",
+                "sort": sort, "count": len(rows)}
+        self.cards.append(view)
+        return {"shown_on_screen": True, "matching": len(rows),
+                "orders": [{"order_id": o["id"], "status": o["status"], "total": o["total"],
+                            "customer": o["customer_name"]} for o in rows[:25]]}
+
+    async def t_fulfillment_plan(self) -> dict:
+        self.cards.append({"type": "board"})
+        return {"timezone": "Buenos Aires", "orders": self.p.fulfillment.upcoming()}
+
+    async def t_market_price_check(self, sku: str = "") -> dict:
+        if not self.market:
+            raise ToolError("market price check is not configured")
+        res = await self.market.check(sku.strip())
+        self.last_market = res
+        self.cards.append({"type": "market", "live": res["live"]})
+        return res

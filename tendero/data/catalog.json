@@ -16,7 +16,15 @@
       "price": "24.00",
       "stock": 18,
       "description": "Natural gourd cured by hand and wrapped in vegetable-tanned leather. Holds about 200 ml.",
-      "keywords": ["mate gourd", "gourds", "gourd", "calabaza", "mate cup", "mates"]
+      "keywords": [
+        "mate gourd",
+        "gourds",
+        "gourd",
+        "calabaza",
+        "mate cup",
+        "mates"
+      ],
+      "market_query": "leather wrapped calabash mate gourd"
     },
     {
       "sku": "BOMB-ALP",
@@ -24,7 +32,13 @@
       "price": "12.00",
       "stock": 40,
       "description": "Classic spoon-filter bombilla made of alpaca silver, 16 cm.",
-      "keywords": ["bombilla", "bombillas", "straw", "filter straw"]
+      "keywords": [
+        "bombilla",
+        "bombillas",
+        "straw",
+        "filter straw"
+      ],
+      "market_query": "alpaca silver bombilla straw"
     },
     {
       "sku": "YERBA-1K",
@@ -32,7 +46,13 @@
       "price": "15.00",
       "stock": 25,
       "description": "Organic yerba mate from Misiones, traditional cut with stems.",
-      "keywords": ["yerba", "yerba mate", "tea", "loose leaf"]
+      "keywords": [
+        "yerba",
+        "yerba mate",
+        "tea",
+        "loose leaf"
+      ],
+      "market_query": "organic yerba mate 1 kg"
     },
     {
       "sku": "CASE-LTH",
@@ -40,7 +60,14 @@
       "price": "35.00",
       "stock": 7,
       "description": "Handstitched leather case that fits a gourd, a bombilla and 250 g of yerba.",
-      "keywords": ["case", "travel case", "bag", "leather case", "estuche"]
+      "keywords": [
+        "case",
+        "travel case",
+        "bag",
+        "leather case",
+        "estuche"
+      ],
+      "market_query": "leather mate travel case"
     },
     {
       "sku": "ALF-12",
@@ -48,7 +75,14 @@
       "price": "18.00",
       "stock": 10,
       "description": "Cornstarch alfajores with dulce de leche, vacuum packed for travel.",
-      "keywords": ["alfajor", "alfajores", "cookies", "sweets", "dulce de leche"]
+      "keywords": [
+        "alfajor",
+        "alfajores",
+        "cookies",
+        "sweets",
+        "dulce de leche"
+      ],
+      "market_query": "alfajores dulce de leche box 12"
     }
   ]
 }

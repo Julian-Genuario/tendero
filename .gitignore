@@ -8,3 +8,4 @@ video/build/
 .pytest_cache/
 video_build.log
 PASOS_JULIAN.md
+vendor/node_modules/

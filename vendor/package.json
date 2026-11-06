@@ -1,0 +1,15 @@
+{
+  "name": "tendero-vendor",
+  "private": true,
+  "description": "Builds the browser bundle of Bryntum Scheduler Community (MIT) served from tendero/static/vendor/. Only needed to rebuild it: the built files are committed.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@bryntum/scheduler-community": "8.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10"
+  }
+}

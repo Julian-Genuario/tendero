@@ -67,6 +67,8 @@ class Catalog:
             )
             for p in data["products"]
         }
+        self.market_queries: dict[str, str] = {p["sku"]: p["market_query"] for p in data["products"]
+                                               if p.get("market_query")}
 
     @classmethod
     def load(cls, path: Path = CATALOG_PATH) -> "Catalog":
@@ -93,6 +95,30 @@ class Catalog:
             if positions:
                 found.append((min(positions), p.sku))
         return [sku for _, sku in sorted(found)]
+
+    def inventory(self, orders: list[dict]) -> list[dict]:
+        """Stock picture per SKU from the ledger: sold (PAID), reserved (checkout in progress)."""
+        sold: dict[str, int] = {}
+        reserved: dict[str, int] = {}
+        revenue: dict[str, Decimal] = {}
+        for o in orders:
+            bucket = sold if o["status"] == "PAID" else reserved if o["status"] in (
+                "AWAITING_PAYMENT", "APPROVED", "CAPTURED") else None
+            if bucket is None:
+                continue
+            for l in o["cart"]["lines"]:
+                bucket[l["sku"]] = bucket.get(l["sku"], 0) + int(l["quantity"])
+                if bucket is sold:
+                    revenue[l["sku"]] = revenue.get(l["sku"], Decimal("0")) + money(l["line_total"])
+        rows = []
+        for p in self.products.values():
+            s, r = sold.get(p.sku, 0), reserved.get(p.sku, 0)
+            avail = p.stock - s - r
+            rows.append({"sku": p.sku, "product": p.name.split(" (")[0], "price": fmt(p.price), "stock": p.stock,
+                         "sold": s, "reserved": r, "available": avail,
+                         "revenue": fmt(revenue.get(p.sku, Decimal("0"))),
+                         "level": "out" if avail <= 0 else "low" if avail <= max(2, p.stock // 5) else "ok"})
+        return rows
 
     def price_cart(self, items: list[dict], max_total: Decimal | None = None) -> dict:
         if not items:

@@ -46,7 +46,7 @@ svg.wires{position:absolute;inset:0;pointer-events:none}
   <div class="mark">T</div>
   <h1>Tendero</h1>
   <div class="lead">An AI sales agent that <b>sells</b>, <b>collects</b> and <b>reconciles</b> with PayPal, for small shops that sell over chat.</div>
-  <div class="foot"><b>PayPal AI Hackathon 2026</b> · built with PayPal Orders v2, Payments v2, Webhooks + Claude</div>
+  <div class="foot"><b>PayPal AI Hackathon 2026</b> · PayPal Orders v2, Payments v2, Webhooks · Claude · AG Grid · Bryntum · APIMatic · Channel3</div>
 </section>
 
 <section id="problem">
@@ -64,21 +64,22 @@ svg.wires{position:absolute;inset:0;pointer-events:none}
     <div class="col">
       <div class="lbl">Channels</div>
       <div class="box2"><div class="h">Customer chat</div>asks, confirms, pays</div>
-      <div class="box2"><div class="h">Owner console</div>AG Grid ledger, timeline, copilot</div>
+      <div class="box2"><div class="h">Owner console</div>AG Grid ledger &amp; inventory + AG Charts · Bryntum Scheduler fulfillment board · copilot</div>
     </div>
     <div class="arrow">&#8644;</div>
     <div class="col wide">
       <div class="lbl">Tendero server · FastAPI</div>
       <div class="box2 core"><div class="h">Agent loop</div>provider-agnostic tool use, refusal handling</div>
-      <div class="box2 core"><div class="h">Tools + guardrails in code</div><span class="tag">build_cart</span><span class="tag">create_payment_link</span><span class="tag">get_order_status</span><span class="tag">refund_order</span><br>prices from catalog · confirm before charge · caps</div>
+      <div class="box2 core"><div class="h">Tools + guardrails in code</div><span class="tag">build_cart</span><span class="tag">create_payment_link</span><span class="tag">get_order_status</span><span class="tag">refund_order</span><span class="tag">show_orders</span><span class="tag">fulfillment_plan</span><span class="tag">market_price_check</span><br>prices from catalog · confirm before charge · caps</div>
       <div class="box2 core"><div class="h">Webhook &rarr; verify &rarr; reconcile</div>amount, currency, order id, fee &amp; net · idempotent ledger</div>
-      <div class="box2"><div class="h">Safety nets</div>sweep for lost webhooks · auto-capture on closed tab · forged events rejected</div>
+      <div class="box2"><div class="h">Safety nets</div>sweep for lost webhooks · auto-capture on closed tab · forged events rejected · fulfillment booked only after PAID</div>
     </div>
     <div class="arrow">&#8644;</div>
     <div class="col">
       <div class="lbl">External</div>
       <div class="box2"><div class="h">Claude API</div><div class="m">claude-sonnet-5-5<br>effort low · fallbacks</div></div>
-      <div class="box2 pp"><div class="h">PayPal REST</div><div class="m">Orders v2 create / capture<br>Payments v2 refund<br>verify-webhook-signature<br>signed webhooks &rarr;</div></div>
+      <div class="box2 pp"><div class="h">PayPal</div><div class="m">Server SDK (APIMatic):<br>Orders v2 · Payments v2<br>REST: verify-webhook-signature<br>signed webhooks &rarr;</div></div>
+      <div class="box2"><div class="h">Channel3</div><div class="m">/v1/search<br>market prices</div></div>
     </div>
   </div>
 </section>
@@ -86,7 +87,7 @@ svg.wires{position:absolute;inset:0;pointer-events:none}
 <section id="close">
   <div class="mark">T</div>
   <h1 style="font-size:54px">Sell while you sleep.<br>Know every payment is real.</h1>
-  <div class="links">MIT licensed · runs locally in 5 minutes · 23 automated tests<br>PayPal sandbox or offline simulator · Claude or offline demo brain</div>
+  <div class="links">MIT licensed · runs locally in 5 minutes · __TESTS__ automated tests<br>PayPal sandbox or offline simulator · Claude or offline demo brain</div>
   <div class="foot"><b>Tendero</b> · PayPal AI Hackathon 2026</div>
 </section>
 

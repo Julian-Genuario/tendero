@@ -31,15 +31,25 @@ VID = ROOT / "video"
 BUILD = VID / "build"
 PORT = int(os.environ.get("VIDEO_PORT", "8020"))
 BASE = f"http://127.0.0.1:{PORT}"
-SLIDES = (VID / "slides" / "slides.html").as_uri()
+SLIDES = (VID / "build" / "slides.html").as_uri()  # slides.html with the live test count filled in
 FFMPEG = os.environ.get("FFMPEG", shutil.which("ffmpeg") or "ffmpeg")
 FFPROBE = os.environ.get("FFPROBE", shutil.which("ffprobe") or "ffprobe")
 TAIL = 0.45  # silence after each narration segment
-VW, VH, OUT_H = 1280, 656, 720  # browser area + a bottom bar for subtitles
+VW, VH, OUT_H = 1440, 748, 810  # browser area + a bottom bar for subtitles (16:9 output)
 
 
 # ---------------------------------------------------------------- narration
 async def synth(text: str, voice: str, rate: str, out: Path) -> list[dict]:
+    for attempt in range(4):  # the TTS service fails now and then; retry before giving up
+        try:
+            return await _synth(text, voice, rate, out)
+        except edge_tts.exceptions.NoAudioReceived:
+            if attempt == 3:
+                raise
+            await asyncio.sleep(3 * (attempt + 1))
+
+
+async def _synth(text: str, voice: str, rate: str, out: Path) -> list[dict]:
     sentences = []
     com = edge_tts.Communicate(text, voice, rate=rate)
     with out.open("wb") as f:
@@ -205,8 +215,73 @@ async def sc_forged(d: Director, dur: float):
     await d.point(d.page.locator("#kRejected"))
 
 
-async def sc_copilot(d: Director, dur: float):
+async def drag_by(d: Director, locator, dx: float):
+    """Drags an element horizontally with the mouse, moving the fake cursor along."""
+    box = await locator.bounding_box()
+    x, y = box["x"] + box["width"] / 2, box["y"] + box["height"] / 2
+    await d.page.evaluate("([x,y]) => window.__cursor && window.__cursor(x,y)", [x, y])
+    await asyncio.sleep(0.7)
+    await d.page.mouse.move(x, y)
+    await d.page.mouse.down()
+    for i in range(1, 13):
+        nx = x + dx * i / 12
+        await d.page.mouse.move(nx, y)
+        await d.page.evaluate("([x,y]) => { const c=document.getElementById('__cur'); if (c) { c.style.transition='none'; c.style.left=x+'px'; c.style.top=y+'px'; } }", [nx, y])
+        await asyncio.sleep(0.06)
+    await asyncio.sleep(0.3)
+    await d.page.mouse.up()
+    await d.page.evaluate("() => { const c=document.getElementById('__cur'); if (c) c.style.transition=''; }")
+
+
+async def sc_board(d: Director, dur: float):
+    await d.click(d.page.locator("#tab-fulfillment"))
+    await d.page.wait_for_selector("#board .b-sch-event", timeout=15000)
+    await asyncio.sleep(1.2)
+    qa = d.page.locator("#board .b-sch-event").first
+    await d.point(qa)
+    await qa.hover()
+    await asyncio.sleep(2.2)
+    await d.point(d.page.locator("#custThread .msg.agent").last, 0.4)
+    await asyncio.sleep(2.0)
+    pickup = d.page.locator("#board .b-sch-event", has_text="pickup").first
+    await drag_by(d, pickup, -2 * 58)
+    await d.page.wait_for_selector("#boardToast.bad", timeout=8000)
     await asyncio.sleep(0.4)
+    await d.point(d.page.locator("#boardToast"))
+
+
+async def sc_grid(d: Director, dur: float):
+    # Meanwhile another customer opens a checkout and leaves it unpaid (sent through the same chat API).
+    await d.page.evaluate("""async () => {
+      const post = (u, b) => fetch(u, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(b)}).then(r => r.json());
+      const c = await post('/api/conversations', {kind: 'customer', customer_name: 'Tom (Austin)'});
+      await post('/api/chat', {conversation_id: c.conversation_id, text: '3 bombillas please'});
+      await post('/api/chat', {conversation_id: c.conversation_id, text: 'yes'});
+    }""")
+    await d.click(d.page.locator("#tab-orders"), 0.4)
+    await d.type("#mInput", "Show me unpaid orders over $20", delay=26)
+    await d.page.wait_for_selector("#viewChip:not([hidden])", timeout=15000)
+    await asyncio.sleep(0.5)
+    await d.point(d.page.locator("#viewChip"))
+    await asyncio.sleep(1.4)
+    await d.click(d.page.locator("#tab-inventory"))
+    await asyncio.sleep(1.2)
+    await d.point(d.page.locator("#salesChart"))
+
+
+async def sc_market(d: Director, dur: float):
+    await asyncio.sleep(0.3)
+    await d.type("#mInput", "Are our prices competitive?", delay=28)
+    await d.page.wait_for_selector("#marketGrid .ag-row", timeout=15000)
+    await asyncio.sleep(0.8)
+    await d.point(d.page.locator("#marketNote"))
+    await asyncio.sleep(1.6)
+    await d.point(d.page.locator("#marketGrid .pill.pos").nth(2))
+
+
+async def sc_copilot(d: Director, dur: float):
+    await d.click(d.page.locator("#tab-orders"), 0.4)
+    await d.click(d.page.locator("#viewChipClear"), 0.3)
     await d.type("#mInput", "How did we do today? Any issues?")
     await d.page.wait_for_selector("#mThread .msg.agent")
     await asyncio.sleep(0.6)
@@ -222,6 +297,8 @@ async def sc_refund(d: Director, dur: float):
     await d.point(d.page.locator("#custThread .msg.agent").last)
     await asyncio.sleep(1.0)
     await d.point(d.page.locator(".pill.REFUNDED"))
+    await asyncio.sleep(1.0)
+    await d.point(d.page.locator("#timeline li").last)
 
 
 async def sc_arch(d: Director, dur: float):
@@ -241,6 +318,7 @@ async def record(segs: list[dict]) -> tuple[Path, list[float], float]:
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         ctx = await browser.new_context(viewport={"width": VW, "height": VH}, device_scale_factor=1,
+                                        timezone_id="America/Argentina/Buenos_Aires", locale="en-US",
                                         record_video_dir=str(raw), record_video_size={"width": VW, "height": VH})
         await ctx.add_init_script(CURSOR_JS)
         page = await ctx.new_page()
@@ -340,9 +418,29 @@ def mux(raw: Path, segs: list[dict], starts: list[float], end: float, out: Path)
     subprocess.run(cmd, cwd=BUILD, check=True)
 
 
+WORDS = {20: "twenty", 30: "thirty", 40: "forty", 50: "fifty"}
+ONES = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+
+
+def count_tests() -> int:
+    out = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q"], cwd=ROOT,
+                         capture_output=True, text=True).stdout
+    m = re.search(r"(\d+) tests? collected", out)
+    return int(m.group(1)) if m else 0
+
+
+def words(n: int) -> str:
+    tens = WORDS.get(n // 10 * 10)
+    return f"{tens}-{ONES[n % 10]}" if tens and n % 10 else tens or str(n)
+
+
 async def main() -> None:
     BUILD.mkdir(parents=True, exist_ok=True)
-    cfg = json.loads((VID / "narration.json").read_text(encoding="utf-8"))
+    n = count_tests()
+    raw = (VID / "narration.json").read_text(encoding="utf-8").replace("__TESTS_WORDS__", words(n))
+    cfg = json.loads(raw)
+    slides = (VID / "slides" / "slides.html").read_text(encoding="utf-8")
+    (BUILD / "slides.html").write_text(slides.replace("__TESTS__", str(n)), encoding="utf-8")
     segs = await build_audio(cfg)
     server = start_server()
     try:

@@ -1,0 +1,99 @@
+@charset "UTF-8";
+
+/* Themes need more specific rules than Widgets etc. to make sure the values are applied no matter the import order */
+:root:not(.b-nothing), :host(:not(.b-nothing)) {
+    --b-primary                              : var(--b-color-blue);
+    --b-secondary                            : var(--b-color-orange);
+
+    --b-mix                                  : #fff;
+    --b-opposite                             : #000;
+
+    /* region Core */
+
+    --b-widget-color-scheme                  : light;
+    --b-widget-border-radius                 : .6em;
+    --b-widget-border-radius-large           : 1.2em;
+    --b-widget-border-color                  : var(--b-neutral-60);
+
+    --b-field-set-border-color               : var(--b-neutral-80);
+
+    --b-panel-with-header-padding            : 0 var(--b-widget-padding-large) var(--b-widget-padding-large) var(--b-widget-padding-large);
+
+    --b-popup-background                     : var(--b-panel-background);
+    --b-popup-padding                        : var(--b-widget-padding);
+
+    --b-slide-toggle-border-color            : transparent;
+    --b-slide-toggle-disabled-border-color   : transparent;
+    --b-slide-toggle-height                  : 1.5em;
+    --b-slide-toggle-width                   : 2.25em;
+
+    --b-splitter-color                       : var(--b-neutral-80);
+    --b-splitter-size                        : 1px;
+    --b-splitter-hover-size                  : 5px;
+    --b-splitter-hover-color                 : var(--b-neutral-90);
+
+    --b-text-field-outlined-input-padding    : .9em;
+    --b-text-field-outlined-border-color     : var(--b-border-6);
+    --b-field-trigger-edge-gap               : .9em;
+
+    /* endregion */
+
+    /* Grid */
+    --b-grid-header-font-weight              : 600;
+    --b-grid-header-color                    : var(--b-neutral-25);
+
+    /* Gantt */
+    --b-scroll-button-border-width           : 1px;
+
+    /* TaskBoard */
+    --b-task-board-column-header-font-weight : 600;
+}
+
+/* Shades of primary color have to be specified per widget, for color-mix to work as intended */
+.b-bryntum:not(.b-nothing) {
+    --bi-primary-shade                                : var(--b-primary-50);
+
+    /* region Core */
+
+    --b-checkbox-checked-background                   : var(--bi-primary-shade);
+    --b-checkbox-checked-border-color                 : var(--b-checkbox-checked-background);
+    --b-checkbox-checked-hover-background             : var(--bi-primary-shade);
+
+    --b-list-checkbox-checked-background              : var(--b-primary);
+
+    --b-menu-background                               : var(--b-primary-100);
+
+    --b-radio-checked-color                           : var(--b-neutral-100);
+    --b-radio-checked-background                      : var(--bi-primary-shade);
+    --b-radio-checked-border-color                    : var(--b-radio-checked-background);
+    --b-radio-check-gap                               : 0.25em;
+
+    --b-slide-toggle-background                       : var(--b-neutral-80);
+    --b-slide-toggle-hover-background                 : var(--b-neutral-80);
+    --b-slide-toggle-checked-hovered-thumb-background : var(--b-primary-95);
+    --b-slide-toggle-checked-border-color             : transparent;
+    --b-slide-toggle-checked-background               : var(--bi-primary-shade);
+    --b-slide-toggle-checked-hover-background         : var(--bi-primary-shade);
+
+    --b-slider-color                                  : var(--bi-primary-shade);
+
+    --b-tab-indicator-color                           : var(--bi-primary-shade);
+
+    --b-text-field-focus-border-color                 : var(--bi-primary-shade);
+    --b-text-field-filled-hover-border-color          : var(--bi-primary-shade);
+
+    --b-toast-background                              : var(--b-neutral-100);
+
+    /* endregion */
+
+    /* Grid */
+}
+
+/* Theme meta data */
+.b-theme-info {
+    --b-theme-name             : "SvalbardLight";
+    --b-theme-filename         : "svalbard-light";
+    --b-theme-button-rendition : "text";
+    --b-theme-label-position   : "align-before";
+    --b-theme-overlap-label    : "false";
+}

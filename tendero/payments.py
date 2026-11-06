@@ -22,6 +22,7 @@ from typing import Any
 
 from .catalog import Catalog, fmt, money
 from .config import Settings
+from .fulfillment import Fulfillment
 from .paypal_client import PayPalClient, PayPalError, approve_link, first_capture
 from .reconcile import reconcile_capture
 from .store import Store
@@ -36,6 +37,7 @@ class PaymentFlowError(RuntimeError):
 class Payments:
     def __init__(self, settings: Settings, store: Store, paypal: PayPalClient, catalog: Catalog):
         self.s, self.store, self.paypal, self.catalog = settings, store, paypal, catalog
+        self.fulfillment = Fulfillment(store)
 
     # ------------------------------------------------------------ payment link
     async def create_payment_link(self, order_id: str) -> dict:
@@ -83,6 +85,11 @@ class Payments:
             raise PaymentFlowError("capture response had no capture object")
         self.store.add_event(order["id"], "paypal.capture",
                              f"capture {cap['id']} {cap['status']} via {trigger}; waiting for signed webhook")
+        # The signed webhook can land before PayPal's capture response reaches us. Never move an
+        # order that the webhook already settled back to CAPTURED.
+        current = self.store.get_order(order["id"])
+        if current["status"] in ("PAID", "REFUNDED", "MISMATCH"):
+            return current
         if cap["status"] in ("DECLINED", "FAILED"):
             self._notify_customer(order, "Your payment was declined by PayPal. You can try again with "
                                          "the same link or another funding source.")
@@ -165,11 +172,15 @@ class Payments:
                                             paypal_fee=rec.paypal_fee, net_amount=rec.net_amount,
                                             paid_via=via, paid_at=time.time())
             self.store.add_event(order["id"], "reconciled", f"PAID - {rec.summary()}")
+            self.fulfillment.plan(order)
+            when = self.fulfillment.dispatch_of(order["id"])
+            ships = (f"Planned dispatch: {when.strftime('%a %d %b')}, courier pickup at "
+                     f"{when.strftime('%H:%M')} Buenos Aires time." if when else "It ships within 2 business days.")
             lines = ", ".join(f"{l['quantity']}x {l['name'].split(' (')[0]}" for l in order["cart"]["lines"])
             self._notify_customer(
                 order,
                 f"Payment confirmed by PayPal: {order['total']} {order['currency']} for order "
-                f"{order['id']} ({lines}). Thank you! It ships within 2 business days.",
+                f"{order['id']} ({lines}). Thank you! {ships}",
                 card={"type": "paid", "order_id": order["id"], "total": order["total"],
                       "currency": order["currency"]},
             )
@@ -187,6 +198,7 @@ class Payments:
                                         refunded_amount=amt)
         self.store.add_event(order["id"], "refund.confirmed",
                              f"refund {refund.get('id')} of {amt} {order['currency']} confirmed by webhook")
+        self.fulfillment.cancel(order["id"], "order refunded")
         self._notify_customer(order, f"Your refund of {amt} {order['currency']} for order {order['id']} "
                                      f"was issued through PayPal. It can take a few days to show up.")
 
@@ -233,4 +245,4 @@ class Payments:
     # ------------------------------------------------------------------ utils
     def _notify_customer(self, order: dict, text: str, card: dict | None = None) -> None:
         self.store.add_message(order["conversation_id"], "agent", text, card=card)
-        self.store.add_event(order["id"], "customer.notified", text[:140])
+        self.store.add_event(order["id"], "customer.notified", text[:220])

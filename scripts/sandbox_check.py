@@ -5,7 +5,9 @@
     python scripts/sandbox_check.py --register-webhook https://<public-url>
                                                     # creates the webhook, prints PAYPAL_WEBHOOK_ID
 
-Reads PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET from the environment or .env.
+Reads PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET from the environment or .env. Orders are created
+and captured through the same backend the app uses: the APIMatic-generated PayPal Server SDK by
+default, or the plain REST client with PAYPAL_SDK=rest.
 """
 from __future__ import annotations
 
@@ -36,6 +38,12 @@ async def main() -> None:
     if not (s.paypal_client_id and s.paypal_client_secret):
         sys.exit("Set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET (sandbox app) first.")
     pp = PayPalClient(s.resolved_paypal_base, s.paypal_client_id, s.paypal_client_secret)
+    orders = pp
+    if s.paypal_sdk == "apimatic":
+        from tendero.paypal_sdk import PayPalSDKClient
+
+        orders = PayPalSDKClient(s.paypal_client_id, s.paypal_client_secret, sandbox=True, rest=pp)
+    print("..  Orders/Payments via", getattr(orders, "sdk_name", "PayPal REST (httpx)"))
     try:
         await pp.token()
         print("OK  OAuth token from", s.resolved_paypal_base)
@@ -47,13 +55,13 @@ async def main() -> None:
             print(f"\n    PAYPAL_WEBHOOK_ID={r['id']}\n")
             return
         if a.capture:
-            o = await pp.capture_order(a.capture)
+            o = await orders.capture_order(a.capture)
             cap = first_capture(o)
             print("OK  captured:", json.dumps({k: cap.get(k) for k in ("id", "status", "amount")}, indent=2))
             print("    fee/net:", json.dumps(cap.get("seller_receivable_breakdown", {}), indent=2))
             return
         cart = Catalog.load().price_cart([{"sku": "MATE-CAL", "quantity": 1}, {"sku": "BOMB-ALP", "quantity": 1}])
-        o = await pp.create_order(reference_id="TN-CHECK-" + os.urandom(3).hex().upper(), cart=cart,
+        o = await orders.create_order(reference_id="TN-CHECK-" + os.urandom(3).hex().upper(), cart=cart,
                                   brand_name="Taller Ñandú (sandbox check)",
                                   return_url="https://example.com/return?order=check",
                                   cancel_url="https://example.com/cancel?order=check")
